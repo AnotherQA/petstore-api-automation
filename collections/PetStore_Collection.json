@@ -1,0 +1,599 @@
+{
+  "info": {
+    "_postman_id": "9185b4f2-c9fe-405d-ab86-01dd952ff748",
+    "name": "[API] Proyecto - Portafolio QA",
+    "description": "**QA Automation Framework - PetStore API**  \nEste proyecto automatiza el ciclo de vida de una mascota. Incluye pruebas de humo, regresión funcional y validaciones de datos negativos.  \n**Autor:** Wilder Carranza",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52145342",
+    "_collection_link": "https://go.postman.co/collection/52145342-9185b4f2-c9fe-405d-ab86-01dd952ff748?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00_Auth",
+      "item": [
+        {
+          "name": "Get Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Validar mensaje de sesión\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.message).to.contain(\"logged in user session\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/user/login?username=wilder&password=123",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "user",
+                "login"
+              ],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "wilder"
+                },
+                {
+                  "key": "password",
+                  "value": "123"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01_Smoke_Tests",
+      "item": [
+        {
+          "name": "Check API Health (Find by Status)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tiempo de respuesta es menor a 600ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(600);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta es un arreglo de mascotas\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an('array');\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pet/findByStatus?status=available",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet",
+                "findByStatus"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "available"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02_Functional_Regression",
+      "item": [
+        {
+          "name": "Create Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Mascota creada exitosamente (200)\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Validar esquema de creación\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.be.a('number');\r",
+                  "    pm.expect(jsonData.name).to.eql(pm.environment.get(\"pet_name\"));\r",
+                  "});\r",
+                  "const body = pm.response.json();\r",
+                  "pm.environment.set(\"pet_id\", body.id);\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// TIP PRO: usar pet_id del CSV si existe, si no generar uno nuevo por iteración\r",
+                  "const csvId = pm.iterationData.get(\"pet_id\");\r",
+                  "const id = csvId\r",
+                  "  ? Number(csvId)\r",
+                  "  : (Math.floor(Date.now() / 1000) + pm.info.iteration);\r",
+                  "\r",
+                  "pm.environment.set(\"pet_id\", id);\r",
+                  "\r",
+                  "// Guardar pet_name y pet_status desde el CSV en el environment\r",
+                  "const name = pm.iterationData.get(\"pet_name\");\r",
+                  "const status = pm.iterationData.get(\"pet_status\");\r",
+                  "\r",
+                  "if (name) pm.environment.set(\"pet_name\", name);\r",
+                  "if (status) pm.environment.set(\"pet_status\", status);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "accept": true
+            }
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": {{pet_id}},\r\n  \"category\": {\r\n    \"id\": 1,\r\n    \"name\": \"Dogs\"\r\n  },\r\n  \"name\": \"{{pet_name}}\",\r\n  \"photoUrls\": [\r\n    \"https://petstore.com/sample.jpg\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\": 1,\r\n      \"name\": \"automation-test\"\r\n    }\r\n  ],\r\n  \"status\": \"{{pet_status}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pet by ID - Verify Creation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 1. Validar que la respuesta sea JSON\r",
+                  "const contentType = pm.response.headers.get(\"Content-Type\") || \"\";\r",
+                  "\r",
+                  "pm.test(\"La respuesta es JSON\", function () {\r",
+                  "    pm.expect(contentType).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Solo parsear si es JSON (evita error Unexpected token '<')\r",
+                  "if (!contentType.includes(\"application/json\")) {\r",
+                  "    return;\r",
+                  "}\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "// 3. Validaciones funcionales\r",
+                  "pm.test(\"Datos coinciden con lo creado\", function () {\r",
+                  "    pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get(\"pet_id\")));\r",
+                  "    pm.expect(jsonData.name).to.eql(pm.environment.get(\"pet_name\"));\r",
+                  "});\r",
+                  "\r",
+                  "// 4. Validación de contrato (básica)\r",
+                  "pm.test(\"Contrato mínimo válido\", function () {\r",
+                  "    pm.expect(jsonData).to.have.property(\"id\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"name\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pet/{{pet_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet",
+                "{{pet_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pet Information",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 1. Validación de código de estado\r",
+                  "pm.test(\"Status code es 200 - Actualización exitosa\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "// 2. Validación de cambio de datos (Lógica de QA)\r",
+                  "pm.test(\"Validar que el status cambió a 'sold'\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(\"sold\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Validar que el nombre incluye la palabra 'Actualizado'\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.name).to.include(\"Actualizado\");\r",
+                  "});\r",
+                  "\r",
+                  "// 3. Verificación de tiempo de respuesta (Performance básico)\r",
+                  "pm.test(\"Tiempo de respuesta aceptable (menor a 800ms)\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(800);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": {{pet_id}},\r\n  \"category\": {\r\n    \"id\": 1,\r\n    \"name\": \"Dogs\"\r\n  },\r\n  \"name\": \"{{pet_name}} - Actualizado\",\r\n  \"photoUrls\": [\r\n    \"https://petstore.com/sample.jpg\"\r\n  ],\r\n  \"tags\": [\r\n    {\r\n      \"id\": 1,\r\n      \"name\": \"automation-test\"\r\n    }\r\n  ],\r\n  \"status\": \"sold\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Pet from Store",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const contentType = pm.response.headers.get(\"Content-Type\") || \"\";\r",
+                  "\r",
+                  "pm.test(\"La respuesta es JSON\", function () {\r",
+                  "    pm.expect(contentType).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "if (!contentType.includes(\"application/json\")) {\r",
+                  "    return;\r",
+                  "}\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"El mensaje contiene el ID eliminado\", function () {\r",
+                  "  pm.expect(String(jsonData.message)).to.eql(String(pm.environment.get(\"pet_id\")));\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pet/{{pet_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet",
+                "{{pet_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03_Negative_Testing",
+      "item": [
+        {
+          "name": "Create Pet - Missing Name [405]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 405 - Invalid Input\", function () {\r",
+                  "    // Nota: Petstore a veces devuelve 200 porque es educativa, \r",
+                  "    // pero como QA debes marcar que se espera 405.\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([405, 400]);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Validar que no se creó el nombre\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.name).to.be.undefined;\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": {{pet_id}},\r\n  \"status\": \"{{pet_status}}\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Pet - Invalid Data Type [400]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 400 - Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Respuesta contiene mensaje de error\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.message).to.contain(\"bad input\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": \"texto_en_lugar_de_numero\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pet - Non-Existing ID [404]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 404 - Not Found\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Mensaje indica que la mascota no existe\", function () {\r",
+                  "    var jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.message).to.eql(\"Pet not found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pet/99999999",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet",
+                "99999999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Pet - Empty Body [405]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code es 405 o 415\", function () {\r",
+                  "    // 415 es Unsupported Media Type si el body está vacío\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([405, 415, 400]);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"El tiempo de respuesta es rápido ante errores\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(400);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pet"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

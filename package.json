@@ -1,0 +1,13 @@
+{
+  "name": "api-automation-petstore",
+  "version": "1.0.0",
+  "description": "Framework de automatización de APIs con Postman y Newman",
+  "main": "index.js",
+  "scripts": {
+    "test": "newman run collections/PetStore_Collection.json -e environments/PetStore_Environment.json -r cli,htmlextra --reporter-htmlextra-export reports/index.html"
+  },
+  "devDependencies": {
+    "newman": "^6.0.0",
+    "newman-reporter-htmlextra": "^1.22.11"
+  }
+}
