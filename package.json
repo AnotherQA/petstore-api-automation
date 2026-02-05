@@ -4,8 +4,9 @@
   "description": "Framework de automatización de APIs con Postman y Newman",
   "private": true,
   "scripts": {
-    "test": "npm run test:api",
-    "test:api": "newman run collections/PetStore_Collection.json -e environments/PetStore_Environment.json -d data/mascotas.csv -r cli,htmlextra --reporter-htmlextra-export reports/index.html"
+    "test": "npm run test:ci",
+    "test:ci": "newman run collections/PetStore_Collection.json -e environments/PetStore_Environment.json -d data/mascotas.csv --folder \"01_Smoke_Tests\" --folder \"02_Functional_Regression\" -r cli,htmlextra --reporter-htmlextra-export reports/index.html",
+    "test:full": "newman run collections/PetStore_Collection.json -e environments/PetStore_Environment.json -d data/mascotas.csv -r cli,htmlextra --reporter-htmlextra-export reports/index.html"
   },
   "devDependencies": {
     "newman": "^6.0.0",
