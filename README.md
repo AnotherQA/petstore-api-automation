@@ -55,23 +55,6 @@ petstore-api-automation/
 - ID inexistente
 
 ---
-
-## ⚙️ Requisitos previos
-
-- Node.js (versión LTS recomendada)
-- Newman
-
-Instalación global (opcional):
-
-```bash
-npm install -g newman
-npm install -g newman-reporter-htmlextra
-
-```
-O instalación local en el proyecto:
-
-npm install
-
 ### Ejecución de pruebas
 Ejecutar pruebas funcionales CRUD con CSV
 
@@ -107,3 +90,20 @@ El identificador pet_id se genera dinámicamente por iteración mediante scripts
 
 ### Evidencia de ejecución
 Reporte HTML disponible en la carpeta reports/
+
+---
+## Requisitos previos
+
+- Node.js (versión LTS recomendada)
+- Newman
+
+Instalación global (opcional):
+
+```bash
+npm install -g newman
+npm install -g newman-reporter-htmlextra
+
+```
+O instalación local en el proyecto:
+
+npm install
