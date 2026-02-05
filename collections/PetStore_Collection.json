@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "9185b4f2-c9fe-405d-ab86-01dd952ff748",
     "name": "[API] Proyecto - Portafolio QA",
-    "description": "**QA Automation Framework - PetStore API**  \nEste proyecto automatiza el ciclo de vida de una mascota. Incluye pruebas de humo, regresión funcional y validaciones de datos negativos.  \n**Autor:** Wilder Carranza",
+    "description": "**QA Automation Framework - PetStore API**  \nEste proyecto automatiza el ciclo de vida de una mascota. Incluye pruebas de humo, regresión funcional y validaciones de datos negativos.  \n**Autor:** Wilder Carranza Alvarado",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "52145342",
     "_collection_link": "https://go.postman.co/collection/52145342-9185b4f2-c9fe-405d-ab86-01dd952ff748?source=collection_link"
